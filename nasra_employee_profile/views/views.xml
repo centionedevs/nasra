@@ -1,0 +1,626 @@
+<odoo>
+    <data>
+
+<!--        <record id="res_users_view_form" model="ir.ui.view">-->
+<!--            <field name="name">res.users.form.inherit</field>-->
+<!--            <field name="model">res.users</field>-->
+<!--            <field name="inherit_id" ref="hr.res_users_view_form_profile"/>-->
+<!--            <field name="priority" eval="16"/>-->
+<!--            <field name="arch" type="xml">-->
+
+<!--                <xpath expr="//div[@name='button_box']" position="replace">-->
+
+<!--                </xpath>-->
+<!--                <xpath expr="//header" position="replace">-->
+
+<!--                </xpath>-->
+<!--&lt;!&ndash;                <xpath expr="//button[@name='%(hr_holidays.hr_leave_allocation_action_my)d']" position="replace">&ndash;&gt;-->
+
+<!--&lt;!&ndash;                </xpath>&ndash;&gt;-->
+<!--&lt;!&ndash;                <xpath expr="//button[@name='%(hr_holidays.hr_leave_action_new_request)d']" position="replace">&ndash;&gt;-->
+
+<!--&lt;!&ndash;                </xpath>&ndash;&gt;-->
+<!--&lt;!&ndash;                <xpath expr="//button[@name='%(hr_holidays.hr_leave_action_new_request)d']" position="replace">&ndash;&gt;-->
+
+<!--&lt;!&ndash;                </xpath>&ndash;&gt;-->
+
+<!--            </field>-->
+<!--        </record>-->
+
+
+
+
+
+        <record id="hr_attendance_action_employee_portal" model="ir.actions.act_window">
+            <field name="name">Attendances</field>
+            <field name="res_model">hr.attendance</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('employee_id', '=', active_id)]</field>
+            <field name="context">{'search_default_employee_id': active_id, 'default_employee_id': active_id,
+                                   'create': False}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_empty_folder">
+                    No attendance records to display
+                </p><p>
+                The attendance records of your employees will be displayed here.
+            </p>
+            </field>
+        </record>
+
+        <function name="write" model="ir.model.data">
+            <function name="search" model="ir.model.data">
+                <value
+                        eval="[('module', '=', 'base'), ('name', '=', 'res_partner_portal_public_rule')]"
+                />
+            </function>
+            <value eval="{'noupdate': False}"/>
+        </function>
+
+        <record model="ir.rule" id="base.res_partner_portal_public_rule">
+            <field name="active" eval="0"/>
+        </record>
+        <function name="write" model="ir.model.data">
+            <function name="search" model="ir.model.data">
+                <value
+                        eval="[('module', '=', 'base'), ('name', '=', 'res_partner_portal_public_rule')]"
+                />
+            </function>
+            <value eval="{'noupdate': True}"/>
+        </function>
+
+        <record id="hr_holidays.act_hr_employee_holiday_request" model="ir.actions.server">
+            <field name="groups_id" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+
+        <record id="view_hr_employee_portal_form_inherit" model="ir.ui.view">
+            <field name="name">hr.employee.form.inherit</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="groups_id" eval="[(4,ref('base.group_portal'))]"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//form" position="attributes">
+                    <attribute name="create">false</attribute>
+                    <attribute name="edit">false</attribute>
+                    <attribute name="delete">false</attribute>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record id="view_hr_employee_portal_form2_inherit" model="ir.ui.view">
+            <field name="name">hr.employee.form.inherit</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//page[@name='personal_information']" position="attributes">
+                    <attribute name="groups">hr.group_hr_user,base.group_portal</attribute>
+                </xpath>
+
+            </field>
+        </record>
+
+<!--        <record id="view_hr_employee_button_planning_inherit" model="ir.ui.view">-->
+<!--            <field name="name">hr.employee.form.inherit</field>-->
+<!--            <field name="model">hr.employee</field>-->
+<!--            <field name="inherit_id" ref="planning.hr_employee_view_form_inherit"/>-->
+<!--            <field name="arch" type="xml">-->
+
+<!--                <xpath expr="//button[@name='action_view_planning']" position="attributes">-->
+<!--                    <attribute name="groups">base.group_user</attribute>-->
+<!--                </xpath>-->
+
+<!--            </field>-->
+<!--        </record>-->
+
+<!--        <record id="view_hr_employee_button_timesheet_inherit" model="ir.ui.view">-->
+<!--            <field name="name">hr.employee.form.inherit</field>-->
+<!--            <field name="model">hr.employee</field>-->
+<!--            <field name="inherit_id" ref="hr_timesheet.hr_employee_view_form_inherit_timesheet"/>-->
+<!--            <field name="arch" type="xml">-->
+
+<!--                <xpath expr="//button[@name='%(hr_timesheet.timesheet_action_from_employee)d']" position="attributes">-->
+<!--                    <attribute name="groups">hr_timesheet.group_hr_timesheet_user,base.group_portal</attribute>-->
+<!--                </xpath>-->
+
+<!--            </field>-->
+<!--        </record>-->
+
+        <record id="view_hr_employee_button_leaves_inherit" model="ir.ui.view">
+            <field name="name">hr.employee.form.inherit</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr_holidays.view_employee_form_leave_inherit"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//button[@name='action_time_off_dashboard']" position="attributes">
+                    <attribute name="groups">base.group_user,base.group_portal</attribute>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record id="act_hr_employee_payslip_list" model="ir.actions.act_window">
+            <field name="res_model">hr.payslip</field>
+            <field name="name">Payslips</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('employee_id', '=', active_id)]</field>
+            <field name="context">{'search_default_employee_id': [active_id], 'default_employee_id': active_id}</field>
+        </record>
+
+        <record id="act_hr_employee_list" model="ir.actions.act_window">
+            <field name="res_model">hr.employee</field>
+            <field name="name">Employee</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('user_id', '=', uid)]</field>
+        </record>
+
+
+        <record id="view_hr_employee_button_payroll" model="ir.ui.view">
+            <field name="name">view_hr_employee_button_payroll</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr_payroll.payroll_hr_employee_view_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//button[@name='%(hr_payroll.act_hr_employee_payslip_list)d']" position="attributes">
+                    <attribute name="groups">hr_payroll.group_hr_payroll_user,base.group_portal</attribute>
+                </xpath>
+                <xpath expr="//button[@name='%(hr_payroll.act_hr_employee_payslip_list)d']" position="after">
+                    <field name="attendance_state" invisible="1"/>
+                    <button name="%(hr_attendance_action_employee_portal)d"
+                            class="oe_stat_button"
+                            type="action" groups="base.group_portal,base.group_user">
+                        <div role="img" id="oe_hr_attendance_status"
+                             class="fa fa-fw fa-circle o_button_icon oe_hr_attendance_status_green"
+                             attrs="{'invisible': [('attendance_state', '=', 'checked_out')]}" aria-label="Available"
+                             title="Available"/>
+                        <div role="img" id="oe_hr_attendance_status"
+                             class="fa fa-fw fa-circle o_button_icon oe_hr_attendance_status_red"
+                             attrs="{'invisible': [('attendance_state', '=', 'checked_in')]}" aria-label="Not available"
+                             title="Not available"/>
+                        <div class="o_stat_info"
+                             attrs="{'invisible': ['|', ('last_check_in', '=', False), ('last_check_out', '!=', False)]}">
+                            <span class="o_stat_text">Attended Since</span>
+                            <span class="o_stat_value"><field name="last_check_in" widget="relative_time"/></span>
+                        </div>
+                        <div class="o_stat_info" attrs="{'invisible': [('last_check_out', '=', False)]}">
+                            <span class="o_stat_text">Not Attended Since</span>
+                            <span class="o_stat_value"><field name="last_check_out" widget="relative_time"/></span>
+                        </div>
+                        <div class="o_stat_info" attrs="{'invisible': [('last_check_in', '!=', False)]}">
+                            <span class="o_stat_text">Attendance</span>
+                        </div>
+                    </button>
+                </xpath>
+                <xpath expr="//button[@name='%(hr_payroll.act_hr_employee_payslip_list)d']" position="attributes">
+                    <attribute name="name">%(nasra_employee_profile.act_hr_employee_payslip_list)d</attribute>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record id="profile_employee_rule" model="ir.rule">
+            <field name="name">profile employee</field>
+            <field ref="model_hr_employee" name="model_id"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+
+        <record id="payslip_employee_rule" model="ir.rule">
+            <field name="name">payslip employee</field>
+            <field ref="hr_payroll.model_hr_payslip" name="model_id"/>
+            <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+
+        <record id="attendance_employee_rule" model="ir.rule">
+            <field name="name">attendance employee</field>
+            <field ref="hr_attendance.model_hr_attendance" name="model_id"/>
+            <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+
+
+        <template id="portal_my_profile" name="Portal My Profile: Request entries"
+                  inherit_id="portal.portal_my_home" priority="1">
+            <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+                <t t-if="request.env['res.users'].browse(request.session.uid).user_has_employee()">
+
+                    <t t-call="portal.portal_docs_entry">
+                        <t t-set="title">Profile</t>
+                        <t t-set="url" t-value="'/my/profile'"/>
+                        <t t-set="count" t-value="1"/>
+                        <t t-set="icon_class" t-value="'fa fa-user'"/>
+                    </t>
+                </t>
+
+
+            </xpath>
+        </template>
+
+
+        <template id="display_profile" name="Display Profile">
+
+            <t t-call="portal.portal_layout">
+
+                <h3 class="page-header">
+                    Profile
+                </h3>
+                <div class="row">
+                    <div class="form-group">
+                        <!--                        <div class="col-12">-->
+                        <!--                            &lt;!&ndash; action=hr_holidays.hr_leave_action_action_approve_department &ndash;&gt;-->
+                        <!--                            <a t-attf-href="/form/leave"-->
+                        <!--                               class="btn btn-info">New Leave Request-->
+                        <!--                            </a>-->
+                        <!--                        </div>-->
+                        <!--                        <div class="dropdown pull-right mr8 col-sm-6">-->
+                        <!--                            <ul class="dropdown-menu" aria-labelledby="sortby">-->
+                        <!--                                <li t-foreach="sortings" t-as="option" t-attf-class="#{sortby == option and 'active'}">-->
+                        <!--                                    <a t-att-href="default_url + '?' + keep_query('date_begin', 'date_end', sortby=option)">-->
+                        <!--                                        <span t-esc="sortings.get(option).get('label')"/>-->
+                        <!--                                    </a>-->
+                        <!--                                </li>-->
+                        <!--                            </ul>-->
+                        <!--                        </div>-->
+                    </div>
+                </div>
+
+                <t t-set="breadcrumbs_searchbar" t-value="True"/>
+                <!-- <t t-set="o_portal_search_panel" t-value="True"/> -->
+
+                <!-- <t t-set="searchbar_inputs" t-value="True"/> -->
+                <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+                <t t-call="portal.portal_searchbar">
+                    <!-- <t t-set="breadcrumbs_searchbar" t-value="True"/>
+                <t t-set="o_portal_search_panel" t-value="True"/>
+                <t t-set="searchbar_inputs" t-value="True"/> -->
+
+                    <t t-set="title">Profile</t>
+                </t>
+
+                <div class="col-auto " t-if="employee.name" name="invoice_date">
+                    <h4 class="m-0" t-field="employee.name"/>
+                </div>
+                <div class="col-auto " t-if="employee.job_title" name="invoice_date">
+                    <h3 class="m-0" t-field="employee.job_title"/>
+                </div>
+
+                <div class="row mt32 mb32">
+                    <!--                    <div class="col-auto col-5 mw-100 mb-2" t-if="employee.name" name="invoice_date">-->
+                    <!--                        <strong>Name:</strong>-->
+                    <!--                        <span class="m-0" t-field="employee.name"/>-->
+                    <!--                    </div>-->
+                    <!--                    <div class="col-auto col-3 mw-100 mb-2" t-if="employee.attendance_id" name="invoice_date">-->
+                    <!--                        <strong>Code:</strong>-->
+                    <!--                        <p class="m-0" t-field="employee.attendance_id"/>-->
+                    <!--                    </div>-->
+                    <div class="col-auto col-5 mw-100 mb-2" t-if="employee.mobile_phone" name="invoice_date">
+                        <strong>Work Mobile:</strong>
+                        <span class="m-0" t-field="employee.mobile_phone"/>
+                    </div>
+                    <div class="col-auto col-5 mw-100 mb-2" t-if="employee.sudo().department_id" name="invoice_date">
+                        <strong>Department:</strong>
+                        <span class="m-0" t-field="employee.sudo().department_id.name"/>
+                    </div>
+                    <div class="col-auto col-5 mw-100 mb-2" t-if="employee.work_phone" name="invoice_date">
+                        <strong>Mobile:</strong>
+                        <span class="m-0" t-field="employee.work_phone"/>
+                    </div>
+                    <!--                      <div class="col-auto col-5 mw-100 mb-2" t-if="employee.sudo().job_id" name="invoice_date">-->
+                    <!--                        <strong>Job:</strong>-->
+                    <!--                        <span class="m-0" t-field="employee.sudo().job_id.name"/>-->
+                    <!--                    </div>-->
+                    <div class="col-auto col-5 mw-100 mb-2" t-if="employee.sudo().parent_id" name="invoice_date">
+                        <strong>Manager:</strong>
+                        <span class="m-0" t-field="employee.sudo().parent_id.name"/>
+                    </div>
+                    <div class="col-auto col-5 mw-100 mb-2" t-if="employee.work_email" name="invoice_date">
+                        <strong>Work Email:</strong>
+                        <span class="m-0" t-field="employee.work_email"/>
+                    </div>
+                    <div class="col-auto col-5 mw-100 mb-2" t-if="employee.sudo().coach_id" name="invoice_date">
+                        <strong>Coach:</strong>
+                        <span class="m-0" t-field="employee.sudo().coach_id.name"/>
+                    </div>
+                </div>
+
+
+                <div class="tab">
+                    <button class="tablinks" onclick="openCity(event, 'work_information')" id="defaultOpen">Work
+                        Information
+                    </button>
+                    <button class="tablinks" onclick="openCity(event, 'private_information')">Private Information
+                    </button>
+                    <button class="tablinks" onclick="openCity(event, 'hr_settings')">Hr Settings</button>
+                </div>
+
+                <div id="work_information" class="tabcontent">
+
+                </div>
+                <!--                                <div id="my_couch_request" class="tabcontent">-->
+
+                <!--                                    <t t-if="not holidays_coach">-->
+                <!--                                        <p>There are currently no Holidays.</p>-->
+                <!--                                    </t>-->
+                <!--                                    <t t-if="holidays_coach" t-call="portal.portal_table">-->
+                <!--                                        <thead>-->
+                <!--                                            <tr class="active">-->
+                <!--                                                <th>Employee</th>-->
+                <!--                                                <th>Leave Type</th>-->
+                <!--                                                &lt;!&ndash; <th>Description</th> &ndash;&gt;-->
+                <!--                                                <th>Start Date</th>-->
+                <!--                                                <th>End date</th>-->
+                <!--                                                <th>Number of Days</th>-->
+                <!--                                                <th>Status</th>-->
+                <!--                                                <th></th>-->
+                <!--                                            </tr>-->
+                <!--                                        </thead>-->
+                <!--                                        <t t-foreach="holidays_coach" t-as="holiday_coach">-->
+                <!--                                            <tr>-->
+                <!--                                                <td>-->
+                <!--                                                    <span t-field="holiday_coach.employee_id"/>-->
+                <!--                                                </td>-->
+                <!--                                                <td class="text-left">-->
+                <!--                                                    <span t-field="holiday_coach.holiday_status_id"/>-->
+                <!--                                                </td>-->
+                <!--                                                &lt;!&ndash; <td>-->
+                <!--                                                    <span t-field="holiday_coach.name"/>-->
+                <!--                                                </td> &ndash;&gt;-->
+                <!--                                                <td class="text-left">-->
+                <!--                                                    <span t-field="holiday_coach.date_from"/>-->
+                <!--                                                </td>-->
+                <!--                                                <td>-->
+                <!--                                                    <span t-field="holiday_coach.date_to"/>-->
+                <!--                                                </td>-->
+                <!--                                                <td>-->
+                <!--                                                    <span t-field="holiday_coach.number_of_days"/>-->
+                <!--                                                </td>-->
+                <!--                                                <td class="tx_status">-->
+                <!--                                                    <t t-if="holiday_coach.state == 'draft'">-->
+                <!--                                                        <span class="badge badge-pill badge-light">-->
+                <!--                                                            <i class="fa fa-fw fa-clock-o" aria-label="Draft" title="Draft"-->
+                <!--                                                               role="img"></i>-->
+                <!--                                                            <span class="d-none d-md-inline">Draft</span>-->
+                <!--                                                        </span>-->
+                <!--                                                    </t>-->
+                <!--                                                    <t t-if="holiday_coach.state == 'confirm'">-->
+                <!--                                                        <span class="badge badge-pill badge-info">-->
+                <!--                                                            <i class="fa fa-fw fa-clock-o" aria-label="Confirm" title="Confirm"-->
+                <!--                                                               role="img"></i>-->
+                <!--                                                            <span class="d-none d-md-inline">Confirm</span>-->
+                <!--                                                        </span>-->
+                <!--                                                    </t>-->
+                <!--                                                    <t t-if="holiday_coach.state == 'validate1'">-->
+                <!--                                                        <span class="badge badge-pill badge-success">-->
+                <!--                                                            <i class="fa fa-fw fa-check" aria-label="Approve" title="Approve"-->
+                <!--                                                               role="img"></i>-->
+                <!--                                                            <span class="d-none d-md-inline">Approved</span>-->
+                <!--                                                        </span>-->
+                <!--                                                    </t>-->
+                <!--                                                    <t t-if="holiday_coach.state == 'validate'">-->
+                <!--                                                        <span class="badge badge-pill badge-success">-->
+                <!--                                                            <i class="fa fa-fw fa-check" aria-label="Validate" title="Validate"-->
+                <!--                                                               role="img"></i>-->
+                <!--                                                            <span class="d-none d-md-inline">Validated</span>-->
+                <!--                                                        </span>-->
+                <!--                                                    </t>-->
+
+                <!--                                                    <t t-if="holiday_coach.state == 'refuse'">-->
+                <!--                                                        <span class="badge badge-pill badge-danger">-->
+                <!--                                                            <i class="fa fa-fw fa-remove" aria-label="Refuse" title="Refuse"-->
+                <!--                                                               role="img"></i>-->
+                <!--                                                            <span class="d-none d-md-inline">Refuse</span>-->
+                <!--                                                        </span>-->
+                <!--                                                    </t>-->
+                <!--                                                </td>-->
+                <!--                                                <td>-->
+                <!--                                                    <a class="btn btn-info"-->
+                <!--                                                       t-att-href="'/web#return_label=Website&amp;model=hr.leave&amp;id=%s&amp;view_type=form' % (holiday_coach.id)"-->
+                <!--                                                       groups="odoo_leave_request_portal_employee.group_employee_leave">Edit-->
+                <!--                                                    </a>-->
+                <!--                                                </td>-->
+                <!--                                            </tr>-->
+                <!--                                        </t>-->
+                <!--                                    </t>-->
+                <!--                                </div>-->
+                <!--                                <div id="my_manager_request" class="tabcontent">-->
+
+                <!--                                    <t t-if="not holidays_manager">-->
+                <!--                                        <p>There are currently no Holidays.</p>-->
+                <!--                                    </t>-->
+                <!--                                    <t t-if="holidays_manager" t-call="portal.portal_table">-->
+                <!--                                        <thead>-->
+                <!--                                            <tr class="active">-->
+                <!--                                                <th>Employee</th>-->
+                <!--                                                <th>Leave Type</th>-->
+                <!--                                                &lt;!&ndash; <th>Description</th> &ndash;&gt;-->
+                <!--                                                <th>Start Date</th>-->
+                <!--                                                <th>End date</th>-->
+                <!--                                                <th>Number of Days</th>-->
+                <!--                                                <th>Status</th>-->
+                <!--                                                <th></th>-->
+                <!--                                            </tr>-->
+                <!--                                        </thead>-->
+                <!--                                        <t t-foreach="holidays_manager" t-as="holiday_manager">-->
+                <!--                                            <tr>-->
+                <!--                                                <td>-->
+                <!--                                                    <span t-field="holidays_manager.employee_id"/>-->
+                <!--                                                </td>-->
+                <!--                                                <td class="text-left">-->
+                <!--                                                    <span t-field="holiday_manager.holiday_status_id"/>-->
+                <!--                                                </td>-->
+                <!--                                                &lt;!&ndash; <td>-->
+                <!--                                                    <span t-field="holiday_manager.name"/>-->
+                <!--                                                </td> &ndash;&gt;-->
+                <!--                                                <td class="text-left">-->
+                <!--                                                    <span t-field="holiday_manager.date_from"/>-->
+                <!--                                                </td>-->
+                <!--                                                <td>-->
+                <!--                                                    <span t-field="holiday_manager.date_to"/>-->
+                <!--                                                </td>-->
+                <!--                                                <td>-->
+                <!--                                                    <span t-field="holiday_manager.number_of_days"/>-->
+                <!--                                                </td>-->
+                <!--                                                <td class="tx_status">-->
+                <!--                                                    <t t-if="holiday_manager.state == 'draft'">-->
+                <!--                                                        <span class="badge badge-pill badge-light">-->
+                <!--                                                            <i class="fa fa-fw fa-clock-o" aria-label="Draft" title="Draft"-->
+                <!--                                                               role="img"></i>-->
+                <!--                                                            <span class="d-none d-md-inline">Draft</span>-->
+                <!--                                                        </span>-->
+                <!--                                                    </t>-->
+                <!--                                                    <t t-if="holiday_manager.state == 'confirm'">-->
+                <!--                                                        <span class="badge badge-pill badge-info">-->
+                <!--                                                            <i class="fa fa-fw fa-clock-o" aria-label="Confirm" title="Confirm"-->
+                <!--                                                               role="img"></i>-->
+                <!--                                                            <span class="d-none d-md-inline">Confirm</span>-->
+                <!--                                                        </span>-->
+                <!--                                                    </t>-->
+                <!--                                                    <t t-if="holiday_manager.state == 'validate1'">-->
+                <!--                                                        <span class="badge badge-pill badge-success">-->
+                <!--                                                            <i class="fa fa-fw fa-check" aria-label="Approve" title="Approve"-->
+                <!--                                                               role="img"></i>-->
+                <!--                                                            <span class="d-none d-md-inline">Approved</span>-->
+                <!--                                                        </span>-->
+                <!--                                                    </t>-->
+                <!--                                                    <t t-if="holiday_manager.state == 'validate'">-->
+                <!--                                                        <span class="badge badge-pill badge-success">-->
+                <!--                                                            <i class="fa fa-fw fa-check" aria-label="Validate" title="Validate"-->
+                <!--                                                               role="img"></i>-->
+                <!--                                                            <span class="d-none d-md-inline">Validated</span>-->
+                <!--                                                        </span>-->
+                <!--                                                    </t>-->
+
+                <!--                                                    <t t-if="holiday_manager.state == 'refuse'">-->
+                <!--                                                        <span class="badge badge-pill badge-danger">-->
+                <!--                                                            <i class="fa fa-fw fa-remove" aria-label="Refuse" title="Refuse"-->
+                <!--                                                               role="img"></i>-->
+                <!--                                                            <span class="d-none d-md-inline">Refuse</span>-->
+                <!--                                                        </span>-->
+                <!--                                                    </t>-->
+                <!--                                                </td>-->
+                <!--                                                <td>-->
+                <!--                                                    <a class="btn btn-info"-->
+                <!--                                                       t-att-href="'/web#return_label=Website&amp;model=hr.leave&amp;id=%s&amp;view_type=form' % (holiday_manager.id)"-->
+                <!--                                                       groups="odoo_leave_request_portal_employee.group_employee_leave">Edit-->
+                <!--                                                    </a>-->
+                <!--                                                </td>-->
+                <!--                                            </tr>-->
+                <!--                                        </t>-->
+                <!--                                    </t>-->
+                <!--                                </div>-->
+            </t>
+
+            <script>
+                function openCity(evt, cityName) {
+                var i, tabcontent, tablinks;
+                tabcontent = document.getElementsByClassName("tabcontent");
+                for (i = 0; i &lt; tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+                }
+                tablinks = document.getElementsByClassName("tablinks");
+                for (i = 0; i &lt; tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+                }
+                document.getElementById(cityName).style.display = "block";
+                evt.currentTarget.className += " active";
+
+                }
+                // Get the element with id="defaultOpen" and click on it
+                document.getElementById("defaultOpen").click();
+
+            </script>
+
+            <style>
+                body {font-family: Arial;}
+
+                /* Style the tab */
+                .tab {
+                overflow: hidden;
+                border: 1px solid #ccc;
+                background-color: #f1f1f1;
+                border: none;
+                }
+
+                /* Style the buttons inside the tab */
+                .tab button {
+                background-color: inherit;
+                float: left;
+                border: none;
+                outline: none;
+                cursor: pointer;
+                padding: 14px 16px;
+                transition: 0.3s;
+                font-size: 17px;
+                }
+
+                /* Change background color of buttons on hover */
+                .tab button:hover {
+                background-color: #ddd;
+                }
+
+                /* Create an active/current tablink class */
+                .tab button.active {
+                background-color: #ccc;
+                }
+
+                /* Style the tab content */
+                .tabcontent {
+                display: none;
+                padding: 6px 12px;
+                border: none;
+                border-top: none;
+                -webkit-animation: fadeEffect 1s;
+                animation: fadeEffect 1s; /* Fading effect takes 1 second */
+
+                }
+
+
+                /* Fade in tabs */
+                @-webkit-keyframes fadeEffect {
+                from {opacity: 0;}
+                to {opacity: 1;}
+                }
+
+                @keyframes fadeEffect {
+                from {opacity: 0;}
+                to {opacity: 1;}
+                }
+            </style>
+        </template>
+
+        <template id="not_allowed_leave_request" name="Access Denied">
+
+            <t t-call="portal.portal_layout">
+                <div id="wrap">
+                    <div class="oe_structure"/>
+                    <div class="container">
+                        <h1>You are not Allowed Access This Document</h1>
+                        <div>
+                            <a t-attf-href="/my/home" class="btn btn-lg btn-primary">
+                                Back
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </t>
+        </template>
+
+
+    </data>
+</odoo>

@@ -1,0 +1,60 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+<!--
+    <record model="ir.ui.view" id="centione_repair_late_early_penality.list">
+      <field name="name">centione_repair_late_early_penality list</field>
+      <field name="model">centione_repair_late_early_penality.centione_repair_late_early_penality</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <field name="value"/>
+          <field name="value2"/>
+        </tree>
+      </field>
+    </record>
+-->
+
+    <!-- actions opening views on models -->
+<!--
+    <record model="ir.actions.act_window" id="centione_repair_late_early_penality.action_window">
+      <field name="name">centione_repair_late_early_penality window</field>
+      <field name="res_model">centione_repair_late_early_penality.centione_repair_late_early_penality</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+-->
+
+    <!-- server action to the one above -->
+<!--
+    <record model="ir.actions.server" id="centione_repair_late_early_penality.action_server">
+      <field name="name">centione_repair_late_early_penality server</field>
+      <field name="model_id" ref="model_centione_repair_late_early_penality_centione_repair_late_early_penality"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "tree,form",
+          "res_model": model._name,
+        }
+      </field>
+    </record>
+-->
+
+    <!-- Top menu item -->
+<!--
+    <menuitem name="centione_repair_late_early_penality" id="centione_repair_late_early_penality.menu_root"/>
+-->
+    <!-- menu categories -->
+<!--
+    <menuitem name="Menu 1" id="centione_repair_late_early_penality.menu_1" parent="centione_repair_late_early_penality.menu_root"/>
+    <menuitem name="Menu 2" id="centione_repair_late_early_penality.menu_2" parent="centione_repair_late_early_penality.menu_root"/>
+-->
+    <!-- actions -->
+<!--
+    <menuitem name="List" id="centione_repair_late_early_penality.menu_1_list" parent="centione_repair_late_early_penality.menu_1"
+              action="centione_repair_late_early_penality.action_window"/>
+    <menuitem name="Server to list" id="centione_repair_late_early_penality" parent="centione_repair_late_early_penality.menu_2"
+              action="centione_repair_late_early_penality.action_server"/>
+-->
+  </data>
+</odoo>

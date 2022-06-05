@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_portal_hr_custody,hr.custody,nasra_hr_custody.model_hr_custody,base.group_portal,1,0,0,0
+access_portal_hr_suspended,hr.suspended,nasra_hr_end_service.model_hr_suspended,base.group_portal,1,0,0,0
+access_portal_hr_termination,hr.termination,nasra_hr_end_service.model_hr_termination,base.group_portal,1,0,0,0
+access_portal_hr_custody,hr.custody,nasra_hr_custody.model_hr_custody,base.group_portal,1,0,0,0
+access_portal_res_partner,res.partner,base.model_res_partner,base.group_portal,1,0,0,0
+access_portal_hr_payroll,hr_payroll,hr_payroll.model_hr_payslip,base.group_portal,1,0,0,0
+access_portal_hr_department,hr_department,hr.model_hr_department,base.group_portal,1,0,0,0
+access_portal_hr_payroll_line,hr_payroll_line,hr_payroll.model_hr_payslip_line,base.group_portal,1,0,0,0
+access_portal_hr_payslip_worked_days,hr_payslip_worked_days,hr_payroll.model_hr_payslip_worked_days,base.group_portal,1,0,0,0
+access_portal_hr_payslip_input,hr.payslip.input,hr_payroll.model_hr_payslip_input,base.group_portal,1,0,0,0
+access_portal_hr_attendance,hr.attendance,hr_attendance.model_hr_attendance,base.group_portal,1,0,0,0
