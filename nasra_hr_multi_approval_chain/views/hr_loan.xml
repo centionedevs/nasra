@@ -1,0 +1,45 @@
+<odoo>
+    <data>
+        <record id="view_hr_loan_form" model="ir.ui.view">
+            <field name="name">hr.loan.inherited.form</field>
+            <field name="model">hr.loan</field>
+            <field name="inherit_id" ref="nasra_hr_loan_correct.loan_form_view"/>
+            <field name="arch" type="xml">
+                <button name="action_approved" position="replace">
+                    <field name="current_user_is_approver" invisible="True"/>
+                    <button name="approve" states="draft" string="Approve" type="object" class="oe_highlight"
+                            attrs="{'invisible':['|', ('current_user_is_approver', '!=', True)]}"/>
+                </button>
+                <button name="action_cancel" position="replace">
+                    <field name="current_user_is_refusers" invisible="True"/>
+                    <button name="action_cancel" states="draft" string="Cancel" type="object" class="oe_highlight"
+                            attrs="{'invisible':['|', ('current_user_is_refusers', '!=', True)]}"/>
+                </button>
+                <field name="employee_id" position="after">
+                    <field name="pending_approver" invisible="True"/>
+                    <field name="pending_approver_rel"/>
+                    <notebook invisible="1">
+                        <page string="Approbations">
+                            <field name="approbations">
+                                <tree>
+                                    <field name="approver"/>
+                                    <field name="date"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </field>
+                <xpath expr="//notebook" position="inside">
+                    <page string="Approbations">
+                        <field name="approbations">
+                            <tree>
+                                <field name="approver"/>
+                                <field name="date"/>
+                            </tree>
+                        </field>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
