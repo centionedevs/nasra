@@ -8,6 +8,15 @@
                 <xpath expr="//field[@name='bank_account_id']" position="attributes">
                     <attribute name="invisible">True</attribute>
                 </xpath>
+                <xpath expr="//field[@name='job_id']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+                <xpath expr="//field[@name='job_title']" position="after">
+                    <field name="job_id" placeholder="Job Position"/>
+                </xpath>
+                <xpath expr="//field[@name='job_title']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
                 <xpath expr="//field[@name='phone']" position="attributes">
                     <attribute name="invisible">True</attribute>
                 </xpath>
