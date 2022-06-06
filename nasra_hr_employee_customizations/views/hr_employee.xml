@@ -1,0 +1,54 @@
+<odoo>
+    <data>
+        <record id="hr_employee_customized_form_inherit" model="ir.ui.view">
+            <field name="name">hr.employee.customized.form.inherit</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='bank_account_id']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+                <xpath expr="//field[@name='phone']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+                <xpath expr="//field[@name='private_email']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+                <xpath expr="//field[@name='gender']" position="after">
+                     <field name="religion"/>
+                </xpath>
+                 <xpath expr="//field[@name='study_school']" position="after">
+                     <field name="graduation_year"/>
+                </xpath>
+                <xpath expr="//field[@name='address_home_id']" position="after">
+                     <field name="private_address"/>
+                     <field name="private_new_email"/>
+                     <field name="private_mobile"/>
+                     <field name="hiring_date"/>
+                </xpath>
+                <xpath expr="//page[@name='personal_information']//group[2]" position="after">
+                    <group string="Bank infomration">
+                        <field name="bank_name"/>
+                        <field name="branch_number"/>
+                        <field name="customer_number"/>
+                        <field name="account_number"/>
+                        <field name="payment_method"/>
+                        <field name="travel_to"/>
+                        <field name="embassy_name"/>
+                    </group>
+                </xpath>
+                <xpath expr="//page[@name='personal_information']" position="after">
+                    <page name="social_inusre" string="Social Insurance">
+                        <group string="Social">
+                            <field name="social_insure_no"/>
+                            <field name="social_insure_office"/>
+                            <field name="social_insure_start"/>
+                            <field name="social_insure_end"/>
+                            <field name="social_insure_vac_date"/>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
