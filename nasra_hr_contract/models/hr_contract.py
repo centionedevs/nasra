@@ -10,6 +10,9 @@ class HrContract(models.Model):
     num_working_hours_day = fields.Integer(default=8,
                                            help="Used as standard rate for overtime calculations regardless "
                                                 "the true working hours")
+    resource_calendar_id = fields.Many2one(
+        'resource.calendar', 'Working Schedule', compute='_compute_employee_resource_id', store=False, readonly=False, copy=False, index=True,
+        domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
 
     @api.constrains('state')
     def constrain_state(self):
@@ -18,3 +21,6 @@ class HrContract(models.Model):
         if len(employee_contracts) > 1:
             error_message = "Multiple running contracts for employee: " + str(self.employee_id.name)
             raise UserError(error_message)
+
+    def _compute_employee_resource_id(self):
+            self.resource_calendar_id = self.employee_id.resource_calendar_id
