@@ -1,0 +1,13 @@
+<odoo>
+    <data>
+        <record id="rule_attend_allow" model="hr.salary.rule">
+            <field name="name">Allowance Attendance</field>
+            <field name="sequence" eval="14"/>
+            <field name="code">ALAT</field>
+            <field name="category_id" ref="hr_payroll.ALW"/>
+            <field name="struct_id" ref="nasra_hr_payroll_base.custom_default_payroll_structure"/>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = employee.get_attendance_allowance(payslip,contract)</field>
+        </record>
+    </data>
+</odoo>

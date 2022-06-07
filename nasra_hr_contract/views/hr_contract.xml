@@ -9,6 +9,11 @@
                     <field name="num_working_days_month"/>
                     <field name="num_working_hours_day"/>
                 </xpath>
+                <xpath expr="//group[@name='salary_info']" position="inside">
+                    <group name="allow">
+                    <field name="allowances_per_day"/>
+                    </group>
+                </xpath>
             </field>
         </record>
     </data>
