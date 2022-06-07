@@ -11,7 +11,7 @@ class HrContract(models.Model):
                                            help="Used as standard rate for overtime calculations regardless "
                                                 "the true working hours")
     resource_calendar_id = fields.Many2one(
-        'resource.calendar', 'Working Schedule', compute='_compute_employee_resource_id', store=False, readonly=False, copy=False, index=True,
+        'resource.calendar', 'Working Schedule', compute='_compute_employee_resource_id', store=True, readonly=False, copy=False, index=True,
         domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
 
     @api.constrains('state')
