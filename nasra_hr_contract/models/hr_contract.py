@@ -4,6 +4,8 @@ from odoo.exceptions import UserError
 class HrContract(models.Model):
     _inherit = 'hr.contract'
 
+    allowances_per_day = fields.Float('Allowances Per Day')
+
     num_working_days_month = fields.Integer(default=30,
                                             help="Used as standard rate for overtime calculations regardless "
                                                  "the true working days")
