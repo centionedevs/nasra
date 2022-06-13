@@ -9,6 +9,24 @@ import base64
 from datetime import datetime, time, timedelta
 
 
+class HrEmployee(models.Model):
+    _inherit = "hr.employee"
+    zk_emp_id = fields.Char(string="Employee Attendance ID", required=True)
+
+
+class ResourceCalendar(models.Model):
+    _inherit = 'resource.calendar'
+
+    schedule_type = fields.Selection([('fixed', 'Fixed'), ('flexible', 'Flexible'), ('open', 'Open')],
+                                     default='fixed')
+
+
+class HrAttendance(models.Model):
+    _inherit = "hr.attendance"
+
+    local_check_in = fields.Datetime(string="Local Check In")
+
+
 class ExcelReportWizard(models.TransientModel):
     # _name = 'stock.card.report.excel'
     _name = 'hr.attendance.report.excel'
@@ -101,7 +119,7 @@ class StockCardWizard(models.TransientModel):
         if emp.resource_calendar_id:
             for day in range_of_dates:
                 # considering the ontract start date
-                if emp.contract_id.date_start > datetime.strptime(day, "%Y-%m-%d").date():
+                if str(emp.contract_id.date_start) > str(datetime.strptime(day, "%Y-%m-%d").date()):
                     continue
                 if emp.resource_calendar_id.schedule_type == 'fixed':
                     for fixed in emp.resource_calendar_id.attendance_ids:
@@ -175,10 +193,10 @@ class StockCardWizard(models.TransientModel):
         # then return the no of days for missions
         if emp.resource_calendar_id.hours_per_day > 0:
             return hours
-        elif  emp.resource_calendar_id.schedule_type=='open' and emp.resource_calendar_id.hours_per_day==0:
+        elif emp.resource_calendar_id.schedule_type == 'open' and emp.resource_calendar_id.hours_per_day == 0:
             return 0
 
-        elif  emp.resource_calendar_id.schedule_type!='open' and emp.resource_calendar_id.hours_per_day==0:
+        elif emp.resource_calendar_id.schedule_type != 'open' and emp.resource_calendar_id.hours_per_day == 0:
             raise ValidationError(_('Average Hour per Day must be non zero for employee: ' + emp.name))
 
     def get_time_str_from_datetime(self, field_datetime):
@@ -304,7 +322,7 @@ class StockCardWizard(models.TransientModel):
         })
 
         col, row = 0, 7
-        sheet.merge_range('B2:D3', 'Centione', super_format)
+        sheet.merge_range('B2:D3', 'Nasra', super_format)
         sheet.merge_range('F3:H3', str(fields.Datetime.now()), cell_format)
         sheet.write(5, 0, ' من تاريخ ', header_format)
         sheet.write(5, 1, str(self.start_date or ''), header_format)
@@ -343,7 +361,8 @@ class StockCardWizard(models.TransientModel):
             excuse = self.get_excuse(emp, self.start_date, self.end_date)
             mission = self.get_mission(emp, self.start_date, self.end_date)
             late_hours = self.get_late_hours(emp, self.start_date, self.end_date)
-            late_hours_val=((late_hours - (excuse + mission))/emp.resource_calendar_id.hours_per_day) if emp.resource_calendar_id.hours_per_day>0 else 0
+            late_hours_val = ((late_hours - (
+                    excuse + mission)) / emp.resource_calendar_id.hours_per_day) if emp.resource_calendar_id.hours_per_day > 0 else 0
             print("late_hours", late_hours)
             print("mission:::>>>>>", mission)
             # late = emp.filter_uncovered_late_attendance_intervals(emp.resource_calendar_id,self.start_date,self.end_date)
@@ -367,8 +386,8 @@ class StockCardWizard(models.TransientModel):
             col += 1
             # sheet.write(row, col, excuse or 0, cell_format)
             # col += 1
-            if emp.resource_calendar_id.hours_per_day>0:
-                mission=mission/emp.resource_calendar_id.hours_per_day
+            if emp.resource_calendar_id.hours_per_day > 0:
+                mission = mission / emp.resource_calendar_id.hours_per_day
             sheet.write(row, col, mission or 0, cell_format)
             col += 1
             sheet.write(row, col, late_hours_val or 0, cell_format)
