@@ -53,7 +53,7 @@
                             <field name="social_insure_office"/>
                             <field name="social_insure_start"/>
                             <field name="social_insure_end"/>
-                            <field name="social_insure_vac_date"/>
+                            <field name="social_insure_vac_date" invisible="True"/>
                         </group>
                     </page>
                 </xpath>
