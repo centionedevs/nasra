@@ -57,6 +57,11 @@
                         </group>
                     </page>
                 </xpath>
+                <xpath expr="//page[@name='personal_information']//group[7]" position="after">
+                    <group string="Military Status">
+                        <field name="army_status"/>
+                    </group>
+                </xpath>
             </field>
         </record>
     </data>

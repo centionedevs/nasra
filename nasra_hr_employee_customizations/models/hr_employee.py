@@ -25,4 +25,5 @@ class HrEmployee(models.Model):
     hiring_date = fields.Date('Hiring Date')
     graduation_year = fields.Char('Graduation Year')
     study_school = fields.Char("University", groups="hr.group_hr_user", tracking=True)
+    army_status = fields.Char('Army Status')
 
