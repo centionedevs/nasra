@@ -204,7 +204,8 @@ class StockCardWizard(models.TransientModel):
         time_str = date_type.strftime("%H:%M")
         return time_str
 
-    def float_h_m(self, h_m):  # h_m is str in format h:m, split to make a float
+    def float_h_m(self, h_m):
+        # h_m is str in format h:m, split to make a float
         h_m_splitted = h_m.split(':')
         print(h_m_splitted)
         hour = h_m_splitted[0]
@@ -212,7 +213,15 @@ class StockCardWizard(models.TransientModel):
         print(minute)
         str_float = hour + '.' + str((int(minute) / 60)).split('.')[1]
 
+
         return float(str_float)
+
+    def float_to_hours_minutes(self,hour_minute):
+        hour = int(hour_minute)
+        minutes = abs(hour_minute - hour)
+        minutes_format = int(minutes * 60)
+        time_format = str(hour) +':'+ str(minutes_format)
+        return time_format
 
     def get_work_from_to_from_calendar(self, calender_obj_periods, dayofweek_int):
         work_from = 1000
@@ -289,6 +298,15 @@ class StockCardWizard(models.TransientModel):
             print("::::::::>>>>>>>>>>", hours)
         return hours
 
+    def get_absence(self,emp):
+        absence_data = self.env['hr.absence'].search([('employee_id', '=', emp.id),
+                                                            ('date', '>=', self.start_date),
+                                                            ('date', '<=', self.end_date)])
+        if absence_data:
+            return len(absence_data)
+        else:
+            return 0
+
     def generate_excel(self):
         filename = "Attendance"
 
@@ -338,10 +356,11 @@ class StockCardWizard(models.TransientModel):
             'الساعات الفعليه',
             'ايام العمل المطلوبه',
             'ايام العمل الفعليه',
-            'فرق ايام العمل ',
+            'فرق ساعات عمل بالنقص ',
+            'فرق ساعات عمل بالزيادة',
             'الاجازات ',
-            # 'مغادرة خاصه ',
             'مغادرة عمل ',
+            'غياب',
             ' التاخير',
         ]
         for h in headers:
@@ -358,11 +377,16 @@ class StockCardWizard(models.TransientModel):
             horurs = self.get_all_working_days(emp)
             attendance = self.get_actual_work_hours(emp)
             leaves = self.get_time_off(emp)
+            absence = self.get_absence(emp)
+
             excuse = self.get_excuse(emp, self.start_date, self.end_date)
             mission = self.get_mission(emp, self.start_date, self.end_date)
             late_hours = self.get_late_hours(emp, self.start_date, self.end_date)
             late_hours_val = ((late_hours - (
                     excuse + mission)) / emp.resource_calendar_id.hours_per_day) if emp.resource_calendar_id.hours_per_day > 0 else 0
+            float_late = self.float_to_hours_minutes(round(late_hours_val,2))
+            float_diff_hours = attendance['work_hors'] - horurs['all_hours']
+            float_diff = self.float_to_hours_minutes(round(float_diff_hours,2))
             print("late_hours", late_hours)
             print("mission:::>>>>>", mission)
             # late = emp.filter_uncovered_late_attendance_intervals(emp.resource_calendar_id,self.start_date,self.end_date)
@@ -380,17 +404,21 @@ class StockCardWizard(models.TransientModel):
             col += 1
             sheet.write(row, col, attendance['all_work_days'] or 0, cell_format)
             col += 1
-            sheet.write(row, col, (attendance['all_work_days'] - horurs['all_days']) or 0, cell_format)
+            sheet.write(row, col, (float_diff) if attendance['work_hors'] < horurs['all_hours'] else 0, cell_format)
+            col += 1
+            sheet.write(row, col, (float_diff) if attendance['work_hors'] > horurs[
+                'all_hours'] else 0, cell_format)
             col += 1
             sheet.write(row, col, leaves or 0, cell_format)
             col += 1
-            # sheet.write(row, col, excuse or 0, cell_format)
-            # col += 1
+
             if emp.resource_calendar_id.hours_per_day > 0:
                 mission = mission / emp.resource_calendar_id.hours_per_day
             sheet.write(row, col, mission or 0, cell_format)
             col += 1
-            sheet.write(row, col, late_hours_val or 0, cell_format)
+            sheet.write(row, col, absence or 0, cell_format)
+            col += 1
+            sheet.write(row, col, float_late or 0, cell_format)
             row += 1
 
         workbook.close()
