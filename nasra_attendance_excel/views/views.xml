@@ -55,7 +55,7 @@
         </record>
 
         <menuitem id="hr_attendance_report_menu" name="Attendance Report"
-                  parent="hr_attendance.menu_hr_attendance_view_attendances"
+                  parent="hr_attendance.menu_hr_attendance_root"
                   action="attendance_wizard_action"/>
 
 
