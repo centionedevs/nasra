@@ -384,9 +384,9 @@ class StockCardWizard(models.TransientModel):
             late_hours = self.get_late_hours(emp, self.start_date, self.end_date)
             late_hours_val = ((late_hours - (
                     excuse + mission)) / emp.resource_calendar_id.hours_per_day) if emp.resource_calendar_id.hours_per_day > 0 else 0
-            float_late = self.float_to_hours_minutes(round(late_hours_val,2))
+            float_late = self.float_to_hours_minutes(round(late_hours_val,3))
             float_diff_hours = attendance['work_hors'] - horurs['all_hours']
-            float_diff = self.float_to_hours_minutes(round(float_diff_hours,2))
+            float_diff = self.float_to_hours_minutes(round(float_diff_hours,3))
             print("late_hours", late_hours)
             print("mission:::>>>>>", mission)
             # late = emp.filter_uncovered_late_attendance_intervals(emp.resource_calendar_id,self.start_date,self.end_date)
