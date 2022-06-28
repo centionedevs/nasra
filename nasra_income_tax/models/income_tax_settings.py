@@ -28,14 +28,109 @@ class IncomeTaxSettings(models.Model):
     #             #     raise ValidationError('Tax Division Is Missing')
     #             prev = line.max_value
 
-    def calc_income_tax(self, tax_pool):
+    def rule_val_inpayslips_since_date(self, employee, current_payslip_id, rule_code, start_date, end_date):
+        last_payslip_lines = self.env['hr.payslip.line'].search([
+            ('slip_id', '!=', current_payslip_id),
+            ('slip_id.employee_id', '=', employee.id),
+            ('code', '=', rule_code),
+            ('slip_id.date_from', '>=', start_date),
+            ('slip_id.date_to', '<', end_date),
+        ])
+
+        if last_payslip_lines:
+            return sum(last_payslip_lines.mapped('total'))
+        else:
+            return 0
+
+    def category_val_inpayslips_since_date(self, employee, current_payslip_id, category_code, start_date, end_date):
+        last_payslip_lines = self.env['hr.payslip.line'].search([
+            ('slip_id', '!=', current_payslip_id),
+            ('slip_id.employee_id', '=', employee.id),
+            ('category_id.code', '=', category_code),
+            ('slip_id.date_from', '>=', start_date),
+            ('slip_id.date_to', '<', end_date),
+        ])
+
+        if last_payslip_lines:
+            return sum(last_payslip_lines.mapped('total'))
+        else:
+            return 0
+
+    def calc_income_tax(self, tax_pool, payslip):
+        first_day_in_current_year = datetime.now().date().replace(month=1, day=1)
+        payslip = payslip.dict
+
+        # current one in payslip, and last months during current year + previous tax pool from contract
+        tax_pool += self.category_val_inpayslips_since_date(payslip.employee_id, payslip.id, 'BASIC',
+                                                            first_day_in_current_year, payslip.date_from) + \
+                    self.category_val_inpayslips_since_date(payslip.employee_id, payslip.id, 'ALW',
+                                                            first_day_in_current_year, payslip.date_from)
+
+        # current one in payslip, and last months during current year
+        total_social_insurance = self.rule_val_inpayslips_since_date(payslip.employee_id,
+                                                                                           payslip.id,
+                                                                                           'SIC',
+                                                                                           first_day_in_current_year,
+                                                                                           payslip.date_from)
+
+        # last months value of income tax during current year
+        total_income_tax = self.rule_val_inpayslips_since_date(payslip.employee_id, payslip.id,
+                                                               'INCTAX', first_day_in_current_year,
+                                                               payslip.date_from)
+
+        # subtrct social insurance from taxpool
+        tax_pool = tax_pool - abs(total_social_insurance)
+        month_count = 0
+        # if payslip.date_to.year == payslip.contract_id.date_start.year:
+        month_count = payslip.date_to.month - payslip.contract_id.date_start.month + 1
+        # else:
+        #     month_count = payslip.date_to.month
+        tax_pool /= month_count
+
+        tax_pool *= 12
+
+        # starting income tax applying segments
         income_tax_settings = self.env.ref('nasra_income_tax.income_tax_settings0')
         functional_exemption = income_tax_settings.is_functional_exempt and income_tax_settings.functional_exempt_value or 0
-        effective_salary = tax_pool - functional_exemption
+        effective_salary = 0
         income_tax = 0.0
         income_tax_after_exemption = 0.0
+        starting_beginning_segment_sequence = 0
 
-        starting_beginning_segment_sequence = 1
+        # cases of taxpool
+        if tax_pool < 600000:
+            tax_pool /= 12
+            effective_salary = tax_pool - functional_exemption
+            starting_beginning_segment_sequence = 1
+
+        elif tax_pool < 700000:
+            tax_pool /= 12
+            effective_salary = tax_pool
+            starting_beginning_segment_sequence = 2
+
+        elif tax_pool < 800000:
+            tax_pool /= 12
+            effective_salary = tax_pool
+            starting_beginning_segment_sequence = 3
+
+        elif tax_pool < 900000:
+            tax_pool /= 12
+            effective_salary = tax_pool
+            starting_beginning_segment_sequence = 4
+        elif tax_pool < 1000000:
+            tax_pool /= 12
+            effective_salary = tax_pool
+            starting_beginning_segment_sequence = 5
+
+        elif tax_pool < 1100000:
+            tax_pool /= 12
+            effective_salary = tax_pool
+            starting_beginning_segment_sequence = 6
+
+        elif tax_pool > 1100000:
+            tax_pool /= 12
+            effective_salary = tax_pool
+            starting_beginning_segment_sequence = 7
 
         for class_seg in income_tax_settings.class_ids:
             if class_seg.value_from <= effective_salary <= class_seg.value_to:
@@ -43,7 +138,8 @@ class IncomeTaxSettings(models.Model):
                 break
 
         sorted_lines = income_tax_settings.line_ids.search(
-            [('beginning_segment_sequence', '>=', starting_beginning_segment_sequence)]).sorted(lambda x: x.sequence)
+            [('sequence', '>=', starting_beginning_segment_sequence)]).sorted(lambda x: x.sequence)
+
         for line in sorted_lines:
             if line.diff_value:
                 if effective_salary <= line.diff_value:
@@ -57,7 +153,8 @@ class IncomeTaxSettings(models.Model):
             else:
                 income_tax += (line.tax_ratio / 100.0) * effective_salary
                 break
-        return income_tax_after_exemption
+        result = (income_tax_after_exemption * month_count) - abs(total_income_tax)
+        return result
 
     def calc_next_tax(self, tax_pool, employee, payslip):
         previous_tax = 0
@@ -77,7 +174,7 @@ class IncomeTaxSettings(models.Model):
                 elif line.category_id.code in ['BASIC', 'ALW', 'DED']:
                     previous_tax_pool += line.total
 
-        tax_amount = self.calc_income_tax(tax_pool + previous_tax_pool) - previous_tax
+        tax_amount = (self.calc_income_tax(tax_pool ,payslip) + previous_tax_pool) - previous_tax
         return tax_amount
 
     def get_attendance_rate(self, payslip, contract):
@@ -87,7 +184,7 @@ class IncomeTaxSettings(models.Model):
     def check_date(self, payslip, contract):
         if fields.Date.from_string(payslip.date_from).month == fields.Date.from_string(
                 contract.date_start).month and fields.Date.from_string(
-                payslip.date_from).year == fields.Date.from_string(contract.date_start).year:
+            payslip.date_from).year == fields.Date.from_string(contract.date_start).year:
             return True
         return False
 
