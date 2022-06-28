@@ -30,7 +30,7 @@ class HrPayslip(models.Model):
                 if total_loans:
                     for loan_id in total_loans:
                         all_loans_lines = self.env['hr.loan.line'].search(
-                            [('loan_id', '=', loan_id.id), ('loan_id.state', '=', 'approved')])
+                            [('loan_id', '=', loan_id.id), ('loan_id.state', '=', ['approved','sent'])])
                         open = False
                         for line_loan in all_loans_lines:
                             if line_loan.state != 'paid':

@@ -1,0 +1,12 @@
+<odoo>
+  <data>
+    <record id="days_off_action" model="ir.actions.act_window">
+        <field name="name">Days Off</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">days.off</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="days_off_menu" name="Days Off" parent="hr.menu_human_resources_configuration" action="days_off_action" sequence="123"/>
+  </data>
+</odoo>

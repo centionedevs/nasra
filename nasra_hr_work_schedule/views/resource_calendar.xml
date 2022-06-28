@@ -1,0 +1,21 @@
+<odoo>
+    <data>
+        <!--      attrs="{'invisible': [('schedule_type', '!=', 'open')]}"-->
+        <record id="resource_calendar_customization_form" model="ir.ui.view">
+            <field name="name">resource.calendar.customization.form</field>
+            <field name="model">resource.calendar</field>
+            <field name="inherit_id" ref="resource.resource_calendar_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='hours_per_day']" position="after">
+                    <field name="work_days_per_month"/>
+                </xpath>
+                <xpath expr="//page[@name='working_hours']" position="inside">
+                    <group>
+                        <field name="hour_limit" widget="float_time" attrs="{'invisible': [('schedule_type', '!=', 'open')]}"/>
+                        <field name="days_off_ids" widget="many2many_tags" attrs="{'invisible': [('schedule_type', '!=', 'open')]}"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
