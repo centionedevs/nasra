@@ -55,7 +55,7 @@
         </record>
 
         <record id="hr_variable_allowance_deduction" model="ir.actions.act_window">
-            <field name="name">استحقاقات واستقطاعات متغيرة</field>
+            <field name="name">Variable and Allowance Deduction</field>
             <field name="res_model">hr.variable.allowance.deduction</field>
             <field name="view_mode">tree,form</field>
         </record>
@@ -63,7 +63,7 @@
         <menuitem id="menu_hr_variable_allowance_deduction"
                   parent="hr_work_entry_contract_enterprise.menu_hr_payroll_root"
                   action="hr_variable_allowance_deduction"
-                  name="استحقاقات واستقطاعات متغيرة" sequence="10"/>
+                  name="Variable and Allowance Deduction" sequence="10"/>
 
     </data>
 </odoo>

@@ -11,6 +11,23 @@ class HrAttendance(models.Model):
     def time_to_float(self, time):
         return time.hour + time.minute / 60.0
 
+
+    def float_to_hours_minutes(self, hour_minute):
+        hour = int(hour_minute)
+        minutes = abs(round(hour_minute - hour, 2))
+        decimal = str(minutes)
+        deciaml_sec = decimal[-1]
+        minute_sec = int(deciaml_sec)
+        if minute_sec > 5:
+            minutes_format = int(minutes * 60 + 1)
+            time_format = str(hour) + '.' + str(minutes_format)
+            float_format = float(time_format)
+        elif minute_sec <= 5:
+            minutes_format = int(minutes * 60)
+            time_format = str(hour) + '.' + str(minutes_format)
+            float_format = float(time_format)
+        return float_format
+
     @api.constrains('check_in')
     def _compute_late_hours(self):
         if self.check_in:
@@ -33,8 +50,18 @@ class HrAttendance(models.Model):
                         diff = self.time_to_float(check_in_datetime.time()) - it.hour_from_flexible
                         self.late_attendance_hours = diff if diff > 0 else 0
                     elif resource_calendar.schedule_type == 'open':
-                        pass
-
+                        if self.float_to_hours_minutes(resource_calendar.hour_limit) == 0:
+                            self.late_attendance_hours = 0
+                            break
+                        if self.time_to_float(check_in_datetime.time()) < self.float_to_hours_minutes(
+                                resource_calendar.hour_limit):
+                            self.late_attendance_hours = 0
+                            break
+                        if self.time_to_float(check_in_datetime.time()) > self.float_to_hours_minutes(
+                                resource_calendar.hour_limit):
+                            diff = abs(self.time_to_float(check_in_datetime.time()) - resource_calendar.hour_limit)
+                            self.late_attendance_hours = diff
+                            break
                     break
 
     @api.constrains('check_in', 'check_out')
@@ -69,7 +96,33 @@ class HrAttendance(models.Model):
                         diff = check_out_reference - check_out_float
                         self.early_leave_hours = diff if diff > 0 else 0
                     elif resource_calendar.schedule_type == 'open':
-                        pass
+                        if self.time_to_float(check_in_datetime.time()) <= self.float_to_hours_minutes(
+                                resource_calendar.hour_limit):
+                            early = self.time_to_float(check_in_datetime.time()) + resource_calendar.hours_per_day
+                            if self.time_to_float(check_out_datetime.time()) < early:
+                                diff = abs(self.time_to_float(check_out_datetime.time()) - early)
+                                self.early_leave_hours = diff
+                            if self.time_to_float(check_out_datetime.time()) >= early:
+                                self.early_leave_hours = 0
+                        if self.float_to_hours_minutes(resource_calendar.hour_limit) == 0:
+                            if resource_calendar.hours_per_day == 0:
+                                self.early_leave_hours = 0
+                            else:
+                                early = self.time_to_float(check_in_datetime.time()) + resource_calendar.hours_per_day
+                                if self.time_to_float(check_out_datetime.time()) < early:
+                                    diff = abs(self.time_to_float(check_out_datetime.time()) - early)
+                                    self.early_leave_hours = diff
+                                if self.time_to_float(check_out_datetime.time()) >= early:
+                                    self.early_leave_hours = 0
+                        if self.time_to_float(check_in_datetime.time()) > self.float_to_hours_minutes(
+                                resource_calendar.hour_limit):
+                            early = self.float_to_hours_minutes(
+                                resource_calendar.hour_limit) + resource_calendar.hours_per_day
+                            if early < self.time_to_float(check_out_datetime.time()):
+                                self.early_leave_hours = 0
+                            else:
+                                diff = abs(self.time_to_float(check_out_datetime.time()) - early)
+                                self.early_leave_hours = diff
 
                     break
         else:
