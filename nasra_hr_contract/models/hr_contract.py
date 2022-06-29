@@ -24,5 +24,6 @@ class HrContract(models.Model):
             error_message = "Multiple running contracts for employee: " + str(self.employee_id.name)
             raise UserError(error_message)
 
+    @api.depends('employee_id.resource_calendar_id')
     def _compute_employee_resource_id(self):
             self.resource_calendar_id = self.employee_id.resource_calendar_id
