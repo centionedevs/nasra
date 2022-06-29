@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "nasra absence manual recalculate",
+    'name': " nasra absence manual recalculate",
 
     'summary': """""",
 
