@@ -10,7 +10,6 @@ class recalculate_attendance_wizard_inherit(models.TransientModel):
 
     recalculate_absence=fields.Boolean(string='Absence')
 
-
     def recalculate_data(self):
         super(recalculate_attendance_wizard_inherit, self).recalculate_data()
 
