@@ -1,0 +1,14 @@
+<odoo>
+    <data>
+        <record id="apply_rule_form_inherit" model="ir.ui.view">
+            <field name="name">apply.rule.form.inherit</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='department_id']" position="after">
+                    <field name="late_early_absence_rule"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
