@@ -51,8 +51,8 @@ class HrEmployee(models.Model):
             result = {
                 'image': "<img style=\"max-width:70px;\" src=/web/image?model=res.company&id=" + str(
                     self.env.user.company_id.id) + "&field=logo />",
-                'name': 'Parkville',
-                'title': 'Parkville',
+                'name': 'Nasra',
+                'title': 'Nasra',
                 'children': [],
             }
             emp_parents = self.search([('parent_id','=',False)])

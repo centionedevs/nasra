@@ -17,7 +17,7 @@ class OrganizationChart(http.Controller):
         data = request.env['hr.employee'].get_organization_chart()
         result_dumps = json.dumps(data)
         data_str =  "var d = " + result_dumps
-        return request.render('park_hr_organization_chart.org_chart_template', {'data':data_str,'department':'Parkville Organization Chart'})
+        return request.render('nasra_hr_organization_chart.org_chart_template', {'data':data_str,'department':'Nasra Organization Chart'})
 
     @http.route(['/page/organization-chart/<int:emp_id>'], auth='user', website=True, type='http', csrf=True)
     def get_org_chart_emp(self,emp_id, **post):
@@ -25,6 +25,6 @@ class OrganizationChart(http.Controller):
         data = employee.get_organization_chart(employee)
         result_dumps = json.dumps(data)
         data_str = "var d = " + result_dumps
-        return request.render('park_hr_organization_chart.org_chart_template', {'data': data_str,'department':employee.department_id.name or 'Parkville Organization Chart'})
+        return request.render('nasra_hr_organization_chart.org_chart_template', {'data': data_str,'department':employee.department_id.name or 'Nasra Organization Chart'})
 
 

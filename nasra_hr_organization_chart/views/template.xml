@@ -4,14 +4,14 @@
 
         <template id="org_chart_template">
               <link rel="stylesheet" type="text/css" href="/web/static/lib/fontawesome/css/font-awesome.css"/>
-              <link rel="stylesheet" href="/park_hr_organization_chart/static/lib/css/jquery.orgchart.css"/>
-              <link rel="stylesheet" href="/park_hr_organization_chart/static/lib/css/style.css"/>
+              <link rel="stylesheet" href="/nasra_hr_organization_chart/static/lib/css/jquery.orgchart.css"/>
+              <link rel="stylesheet" href="/nasra_hr_organization_chart/static/lib/css/style.css"/>
 
-              <script type="text/javascript" src="/park_hr_organization_chart/static/lib/js/jquery.min.js"></script>
-              <script type="text/javascript" src="/park_hr_organization_chart/static/lib/js/jquery.orgchart.js"></script>
-              <script type="text/javascript" src="/park_hr_organization_chart/static/lib/js/jquery.mockjax.min.js"></script>
-              <script type="text/javascript" src="/park_hr_organization_chart/static/lib/js/html2canvas.min.js"></script>
-              <script type="text/javascript" src="/park_hr_organization_chart/static/lib/js/jspdf.min.js"></script>
+              <script type="text/javascript" src="/nasra_hr_organization_chart/static/lib/js/jquery.min.js"></script>
+              <script type="text/javascript" src="/nasra_hr_organization_chart/static/lib/js/jquery.orgchart.js"></script>
+              <script type="text/javascript" src="/nasra_hr_organization_chart/static/lib/js/jquery.mockjax.min.js"></script>
+              <script type="text/javascript" src="/nasra_hr_organization_chart/static/lib/js/html2canvas.min.js"></script>
+              <script type="text/javascript" src="/nasra_hr_organization_chart/static/lib/js/jspdf.min.js"></script>
 
 
 

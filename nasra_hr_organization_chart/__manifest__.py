@@ -1,5 +1,5 @@
 {
-    'name': 'Park Organization Chart',
+    'name': 'Nasra Organization Chart',
     'version': '1.0',
     'category': 'Human Resource',
     'summary': 'Nasra Organization Chart',
