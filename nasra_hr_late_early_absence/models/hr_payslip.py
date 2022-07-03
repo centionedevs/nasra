@@ -173,41 +173,44 @@ class HrPayslip(models.Model):
     #     return absence_days
     #
 
-
-
     def compute_absence_penalty(self, payslip):
         payslip = payslip.dict
-        resource_calendar = payslip.employee_id.resource_calendar_id
-        wage = payslip.contract_id.wage
-        wage_per_day = wage / 30.0
-        total_absence_days = 0
-        absence_penalty_rate = []
-        for it in payslip.worked_days_line_ids:
-            if it.code == 'ABSENCE':
-                total_absence_days = abs(it.number_of_days)
-                break
-        #omara added 17 jan 2021
-        total_absence_days=self.get_custom_total_absence_days(payslip)
-        #omara
-        if resource_calendar.absence_penalty_type == 'fixed':
-            absence_penalty_rate = [resource_calendar.absence_penalty_fixed_rate]
-        elif resource_calendar.absence_penalty_type == 'cumulative':
-            absence_penalty_rate = [it.penalty_rate for it in resource_calendar.absence_penalty_line_ids]
+        if payslip.employee_id.late_early_absence_rule == True:
+            resource_calendar = payslip.employee_id.resource_calendar_id
+            wage_day = payslip.employee_id.resource_calendar_id.work_days_per_month
+            float_wage_day = float(wage_day) or 0
+            wage = payslip.contract_id.wage
+            wage_per_day = wage / float_wage_day
+            total_absence_days = 0
+            absence_penalty_rate = []
+            for it in payslip.worked_days_line_ids:
+                if it.code == 'ABSENCE':
+                    total_absence_days = abs(it.number_of_days)
+                    break
+            # omara added 17 jan 2021
+            total_absence_days = self.get_custom_total_absence_days(payslip)
+            # omara
+            if resource_calendar.absence_penalty_type == 'fixed':
+                absence_penalty_rate = [resource_calendar.absence_penalty_fixed_rate]
+            elif resource_calendar.absence_penalty_type == 'cumulative':
+                absence_penalty_rate = [it.penalty_rate for it in resource_calendar.absence_penalty_line_ids]
 
-        result = 0
-        while total_absence_days > 0:
-            if len(absence_penalty_rate) > 1:
-                rate = absence_penalty_rate.pop(0)
-                result += rate * wage_per_day
-                total_absence_days -= 1
-            elif len(absence_penalty_rate) == 1:
-                result += absence_penalty_rate[0] * total_absence_days * wage_per_day
-                total_absence_days = 0
-            else:
-                result += total_absence_days * wage_per_day
-                total_absence_days = 0
+            result = 0
+            while total_absence_days > 0:
+                if len(absence_penalty_rate) > 1:
+                    rate = absence_penalty_rate.pop(0)
+                    result += rate * wage_per_day
+                    total_absence_days -= 1
+                elif len(absence_penalty_rate) == 1:
+                    result += absence_penalty_rate[0] * total_absence_days * wage_per_day
+                    total_absence_days = 0
+                else:
+                    result += total_absence_days * wage_per_day
+                    total_absence_days = 0
 
-        return -1 * result
+            return -1 * result
+        else:
+            return 0
 
     def _get_polices(self, raw_policy):
         res = []
@@ -226,94 +229,107 @@ class HrPayslip(models.Model):
 
     def compute_late_arrive_penalty(self, payslip):
         payslip = payslip.dict
-        working_schedule = payslip.employee_id.resource_calendar_id
-        wage = payslip.contract_id.wage
-        wage_per_day = wage / 30.0
-        if working_schedule.hours_per_day==0:
-            raise exceptions.ValidationError(_("You must set Average Hours per day in work schudle of  "+payslip.employee_id.name))
+        if payslip.employee_id.late_early_absence_rule == True:
+            working_schedule = payslip.employee_id.resource_calendar_id
+            wage_day = payslip.employee_id.resource_calendar_id.work_days_per_month
+            float_wage_day = float(wage_day) or 0
+            wage = payslip.contract_id.wage
+            wage_per_day = wage / float_wage_day or 0
+            # if working_schedule.hours_per_day==0:
+            #     raise exceptions.ValidationError(_("You must set Average Hours per day in work schudle of  "+payslip.employee_id.name))
 
             #
-        wage_per_hour = wage_per_day / working_schedule.hours_per_day
+            wage_per_hour = wage_per_day / working_schedule.hours_per_day or 0
 
-        date_from = fields.Datetime.to_datetime(payslip.date_from)
-        date_to = fields.Datetime.to_datetime(payslip.date_to) + timedelta(hours=23, minutes=59, seconds=59)
-        late_days = self.env['hr.attendance'].search([('employee_id', '=', payslip.employee_id.id),
-                                                      ('check_in', '>=', date_from),
-                                                      ('check_in', '<=', date_to),
-                                                      ('late_attendance_hours', '>', 0)])
-        late_days = [DummyAttendance(it) for it in late_days]
-        leaves = self.env['resource.calendar.leaves'].search([('holiday_id.employee_id.id', '=', payslip.employee_id.id)])
-        for idx in range(0, len(late_days)):
-            for leave in leaves:
-                if late_days and leave.date_from.date() <= late_days[idx].check_in.date() <= leave.date_to.date():
-                    if leave.consume_hours >= late_days[idx].late_attendance_hours:
-                        leave.consume_hours -= late_days[idx].late_attendance_hours
-                        late_days[idx].late_attendance_hours = 0
-                    elif leave.consume_hours:
-                        late_days[idx].late_attendance_hours -= leave.consume_hours
-                        leave.consume_hours = 0
+            date_from = fields.Datetime.to_datetime(payslip.date_from)
+            date_to = fields.Datetime.to_datetime(payslip.date_to) + timedelta(hours=23, minutes=59, seconds=59)
+            late_days = self.env['hr.attendance'].search([('employee_id', '=', payslip.employee_id.id),
+                                                          ('check_in', '>=', date_from),
+                                                          ('check_in', '<=', date_to),
+                                                          ('late_attendance_hours', '>', 0)])
+            late_days = [DummyAttendance(it) for it in late_days]
+            leaves = self.env['resource.calendar.leaves'].search(
+                [('holiday_id.employee_id.id', '=', payslip.employee_id.id)])
+            for idx in range(0, len(late_days)):
+                for leave in leaves:
+                    if late_days and leave.date_from.date() <= late_days[idx].check_in.date() <= leave.date_to.date():
+                        if leave.consume_hours >= late_days[idx].late_attendance_hours:
+                            leave.consume_hours -= late_days[idx].late_attendance_hours
+                            late_days[idx].late_attendance_hours = 0
+                        elif leave.consume_hours:
+                            late_days[idx].late_attendance_hours -= leave.consume_hours
+                            leave.consume_hours = 0
 
-        late_days = list(filter(lambda a: a.late_attendance_hours != 0, late_days))
-        total_late_hours = sum([it.late_attendance_hours for it in late_days])
-        total_penalty = 0
-        if working_schedule.late_arrive_penalty_type == 'fixed':
-            total_penalty = total_late_hours * working_schedule.late_arrive_penalty_fixed_rate * wage_per_hour
-        elif working_schedule.late_arrive_penalty_type == 'cumulative':
-            late_policy = self._get_polices(working_schedule.late_arrive_penalty_line_ids)
-            total_penalty_time = 0
-            for it in late_days:
-                idx = self._get_policy_idx(it.late_attendance_hours, late_policy)
-                total_penalty_time += late_policy[idx][1][0] if late_policy and late_policy[idx][1] else it.late_attendance_hours
-                if late_policy and len(late_policy[idx][1]) > 1:
-                    late_policy[idx][1].pop(0)
+            late_days = list(filter(lambda a: a.late_attendance_hours != 0, late_days))
+            total_late_hours = sum([it.late_attendance_hours for it in late_days])
+            total_penalty = 0
+            if working_schedule.late_arrive_penalty_type == 'fixed':
+                total_penalty = total_late_hours * working_schedule.late_arrive_penalty_fixed_rate * wage_per_hour
+            elif working_schedule.late_arrive_penalty_type == 'cumulative':
+                late_policy = self._get_polices(working_schedule.late_arrive_penalty_line_ids)
+                total_penalty_time = 0
+                for it in late_days:
+                    idx = self._get_policy_idx(it.late_attendance_hours, late_policy)
+                    total_penalty_time += late_policy[idx][1][0] if late_policy and late_policy[idx][
+                        1] else it.late_attendance_hours
+                    if late_policy and len(late_policy[idx][1]) > 1:
+                        late_policy[idx][1].pop(0)
 
-            total_penalty = total_penalty_time * wage_per_hour
+                total_penalty = total_penalty_time * wage_per_hour
 
-        return -1 * total_penalty
+            return -1 * total_penalty
+        else:
+            return 0
 
     def compute_early_leave_penalty(self, payslip):
         payslip = payslip.dict
-        working_schedule = payslip.employee_id.resource_calendar_id
-        wage = payslip.contract_id.wage
-        wage_per_day = wage / 30.0
-        wage_per_hour = wage_per_day / working_schedule.hours_per_day
+        if payslip.employee_id.late_early_absence_rule == True:
+            working_schedule = payslip.employee_id.resource_calendar_id
+            wage = payslip.contract_id.wage
+            wage_day = payslip.employee_id.resource_calendar_id.work_days_per_month
+            float_wage_day = float(wage_day) or 0
+            wage_per_day = wage / float_wage_day
+            wage_per_hour = wage_per_day / working_schedule.hours_per_day or 0
 
-        date_from = fields.Datetime.to_datetime(payslip.date_from)
-        date_to = fields.Datetime.to_datetime(payslip.date_to) + timedelta(hours=23, minutes=59, seconds=59)
-        early_days = self.env['hr.attendance'].search([('employee_id', '=', payslip.employee_id.id),
-                                                      ('check_in', '>=', date_from),
-                                                      ('check_in', '<=', date_to),
-                                                      ('early_leave_hours', '>', 0)])
-        early_days = [DummyAttendance(it) for it in early_days]
-        leaves = self.env['resource.calendar.leaves'].search(
-            [('holiday_id.employee_id.id', '=', payslip.employee_id.id)])
-        for idx in range(0, len(early_days)):
-            for leave in leaves:
-                if early_days and leave.date_from.date() <= early_days[idx].check_in.date() <= leave.date_to.date():
-                    if leave.consume_hours >= early_days[idx].early_leave_hours:
-                        leave.consume_hours -= early_days[idx].early_leave_hours
-                        early_days[idx].early_leave_hours = 0
-                    elif leave.consume_hours:
-                        early_days[idx].early_leave_hours -= leave.consume_hours
-                        leave.consume_hours = 0
+            date_from = fields.Datetime.to_datetime(payslip.date_from)
+            date_to = fields.Datetime.to_datetime(payslip.date_to) + timedelta(hours=23, minutes=59, seconds=59)
+            early_days = self.env['hr.attendance'].search([('employee_id', '=', payslip.employee_id.id),
+                                                           ('check_in', '>=', date_from),
+                                                           ('check_in', '<=', date_to),
+                                                           ('early_leave_hours', '>', 0)])
+            early_days = [DummyAttendance(it) for it in early_days]
+            leaves = self.env['resource.calendar.leaves'].search(
+                [('holiday_id.employee_id.id', '=', payslip.employee_id.id)])
+            for idx in range(0, len(early_days)):
+                for leave in leaves:
+                    if early_days and leave.date_from.date() <= early_days[idx].check_in.date() <= leave.date_to.date():
+                        if leave.consume_hours >= early_days[idx].early_leave_hours:
+                            leave.consume_hours -= early_days[idx].early_leave_hours
+                            early_days[idx].early_leave_hours = 0
+                        elif leave.consume_hours:
+                            early_days[idx].early_leave_hours -= leave.consume_hours
+                            leave.consume_hours = 0
 
-        early_days = list(filter(lambda a: a.early_leave_hours != 0, early_days))
-        total_early_hours = sum([it.early_leave_hours for it in early_days])
-        total_penalty = 0
-        if working_schedule.early_leave_penalty_type == 'fixed':
-            total_penalty = total_early_hours * working_schedule.early_leave_penalty_fixed_rate * wage_per_hour
-        elif working_schedule.early_leave_penalty_type == 'cumulative':
-            early_policy = self._get_polices(working_schedule.early_leave_penalty_line_ids)
-            total_penalty_time = 0
-            for it in early_days:
-                idx = self._get_policy_idx(it.early_leave_hours, early_policy)
-                total_penalty_time += early_policy[idx][1][0] if early_policy and early_policy[idx][1] else it.early_leave_hours
-                if early_policy and len(early_policy[idx][1]) > 1:
-                    early_policy[idx][1].pop(0)
+            early_days = list(filter(lambda a: a.early_leave_hours != 0, early_days))
+            total_early_hours = sum([it.early_leave_hours for it in early_days])
+            total_penalty = 0
+            if working_schedule.early_leave_penalty_type == 'fixed':
+                total_penalty = total_early_hours * working_schedule.early_leave_penalty_fixed_rate * wage_per_hour
+            elif working_schedule.early_leave_penalty_type == 'cumulative':
+                early_policy = self._get_polices(working_schedule.early_leave_penalty_line_ids)
+                total_penalty_time = 0
+                for it in early_days:
+                    idx = self._get_policy_idx(it.early_leave_hours, early_policy)
+                    total_penalty_time += early_policy[idx][1][0] if early_policy and early_policy[idx][
+                        1] else it.early_leave_hours
+                    if early_policy and len(early_policy[idx][1]) > 1:
+                        early_policy[idx][1].pop(0)
 
-            total_penalty = total_penalty_time * wage_per_hour
+                total_penalty = total_penalty_time * wage_per_hour
 
-        return -1 * total_penalty
+            return -1 * total_penalty
+        else:
+            return 0
 
 
 class DummyAttendance:

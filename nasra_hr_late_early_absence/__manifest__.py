@@ -26,6 +26,7 @@
         'views/hr_attendance.xml',
         'views/hr_absence.xml',
         'views/late_early_time_interval.xml',
+        'views/hr_employee.xml',
         'data/salary_rule.xml',
         'data/ir_cron.xml',
         'security/ir.model.access.csv',
