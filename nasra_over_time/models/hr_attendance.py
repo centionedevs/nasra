@@ -33,12 +33,18 @@ class HrAttendance(models.Model):
                         'employee_id': res.employee_id.id,
                         'holiday_type': 'holiday',
                         'attendance_id': res.id,
-                        'state' : 'draft' if res.employee_id.overtime_state == 'draft' else 'approved'
                     }
                     if res.over_time_id:
                         res.over_time_id.write(data)
                     else:
-                        res.over_time_id = self.env['over.time'].create(data)
+                        if res.employee_id.overtime_state == 'draft':
+                            data.update({'state':'draft'})
+                            res.over_time_id = self.env['over.time'].create(data)
+                        elif res.employee_id.overtime_state == 'approved':
+                            data.update({'state': 'approved'})
+                            res.over_time_id = self.env['over.time'].create(data)
+                        else:
+                            res.over_time_id = self.env['over.time'].create(data)
 
                 else:
                     schedule_check_in_time = schedule_check_out_time = ''
