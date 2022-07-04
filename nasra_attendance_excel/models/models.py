@@ -102,6 +102,7 @@ class StockCardWizard(models.TransientModel):
         day = datetime.strptime(date_str, '%Y-%m-%d').weekday()
         return (calendar.day_name[day])
 
+
     def get_time_difference(self, big_float, small_float):
         dateTimeA = datetime.combine(datetime.today(), big_float)
         dateTimeB = datetime.combine(datetime.today(), small_float)
@@ -138,6 +139,18 @@ class StockCardWizard(models.TransientModel):
                             all_days.append(fixed.dayofweek)
                             all_hours += round(self_sudo.get_time_difference(float_to_time(fixed.hour_to),
                                                                              float_to_time(fixed.hour_from)), 2)
+                elif emp.resource_calendar_id.schedule_type == 'open':
+                    days_allowed = []
+                    days_names = []
+                    date_time_obj = datetime.strptime(day, "%Y-%m-%d")
+                    day_name = date_time_obj.strftime("%A")
+                    for i in emp.resource_calendar_id.days_off_ids:
+                        days_names.append(i.name)
+                    if day_name not in days_names:
+                        days_allowed.append(day_name)
+                        tot_days = len(days_allowed)
+                        all_hours += emp.resource_calendar_id.hours_per_day * (tot_days)
+
 
         return {'all_hours': all_hours, 'all_days': len(all_days)}
 
@@ -385,7 +398,7 @@ class StockCardWizard(models.TransientModel):
             late_hours_val = ((late_hours - (
                     excuse + mission)) / emp.resource_calendar_id.hours_per_day) if emp.resource_calendar_id.hours_per_day > 0 else 0
             float_late = self.float_to_hours_minutes(round(late_hours_val,3))
-            float_diff_hours = attendance['work_hors'] - horurs['all_hours']
+            float_diff_hours = abs(attendance['work_hors'] - horurs['all_hours'])
             float_diff = self.float_to_hours_minutes(round(float_diff_hours,3))
             print("late_hours", late_hours)
             print("mission:::>>>>>", mission)
