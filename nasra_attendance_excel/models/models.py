@@ -150,6 +150,7 @@ class StockCardWizard(models.TransientModel):
                         days_allowed.append(day_name)
                         tot_days = len(days_allowed)
                         all_hours += emp.resource_calendar_id.hours_per_day * (tot_days)
+                        all_days.append(day_name)
 
 
         return {'all_hours': all_hours, 'all_days': len(all_days)}
