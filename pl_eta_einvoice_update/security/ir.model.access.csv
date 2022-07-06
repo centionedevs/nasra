@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_pl_eta_einvoice_update_pl_eta_einvoice_update,pl_eta_einvoice_update.pl_eta_einvoice_update,model_pl_eta_einvoice_update_pl_eta_einvoice_update,base.group_user,1,1,1,1
