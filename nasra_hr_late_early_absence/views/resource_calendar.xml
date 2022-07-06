@@ -51,7 +51,7 @@
 
                 </xpath>
 
-                <xpath expr="//notebook" position="after">
+                <xpath expr="//page[@name='working_hours']" position="after">
                     <group string="Penalties">
                         <notebook>
                             <page string="Absence">

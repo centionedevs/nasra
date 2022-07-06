@@ -18,6 +18,7 @@
                 <xpath expr="//group[@name='salary_info']" position="inside">
                     <group name="allow">
                     <field name="allowances_per_day"/>
+                    <field name="variable"/>
                     </group>
                 </xpath>
             </field>
