@@ -297,6 +297,14 @@ class StockCardWizard(models.TransientModel):
 
         return (late + early)
 
+    def work_early_leave(self,emp):
+        early = self.env['hr.attendance'].search([('employee_id','=',emp.id)])
+        total = 0
+        for rec in early:
+            if rec.check_in.date() <= self.start_date <= rec.check_out.date():
+                total += rec.early_leave_hours
+        return total
+
     def get_late_hours(self, emp, date_from, date_to):
         # date_from = fields.Datetime.from_string(self.start_date) + datetime.timedelta(hours=2)
         # date_to = fields.Datetime.from_string(self.end_date) + datetime.timedelta(hours=2)
@@ -376,6 +384,7 @@ class StockCardWizard(models.TransientModel):
             'مغادرة عمل ',
             'غياب',
             ' التاخير',
+            ' انصراف عمل مبكر',
         ]
         for h in headers:
             sheet.write(row, col, h, header_format)
@@ -392,7 +401,7 @@ class StockCardWizard(models.TransientModel):
             attendance = self.get_actual_work_hours(emp)
             leaves = self.get_time_off(emp)
             absence = self.get_absence(emp)
-
+            early = self.work_early_leave(emp)
             excuse = self.get_excuse(emp, self.start_date, self.end_date)
             mission = self.get_mission(emp, self.start_date, self.end_date)
             late_hours = self.get_late_hours(emp, self.start_date, self.end_date)
@@ -433,6 +442,8 @@ class StockCardWizard(models.TransientModel):
             sheet.write(row, col, absence or 0, cell_format)
             col += 1
             sheet.write(row, col, float_late or 0, cell_format)
+            col += 1
+            sheet.write(row, col, self.float_to_hours_minutes(round(early,3)) or 0, cell_format)
             row += 1
 
         workbook.close()
