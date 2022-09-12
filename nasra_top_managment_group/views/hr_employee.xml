@@ -1,0 +1,14 @@
+<odoo>
+    <data>
+        <record id="view_centione_hr_employee_form" model="ir.ui.view">
+            <field name="name">Centione Hr Employee Form</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='work_email']" position="after">
+                    <field name="is_specific_emp" groups="nasra_top_managment_group.group_top_managment"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

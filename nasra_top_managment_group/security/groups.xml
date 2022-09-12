@@ -1,0 +1,8 @@
+<odoo>
+    <data>
+        <record id="group_top_managment" model="res.groups">
+        <field name="name">Top Manangment Salary Information</field>
+        <field name="comment">the user will be able to see salary information on certain employees.</field>
+    </record>
+    </data>
+</odoo>
