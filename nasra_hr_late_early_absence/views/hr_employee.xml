@@ -8,6 +8,9 @@
                 <xpath expr="//field[@name='department_id']" position="after">
                     <field name="late_early_absence_rule"/>
                 </xpath>
+                <xpath expr="//field[@name='attendance_id']" position="after">
+                    <field name="employee_file_code" placeholder="Employee File Code"/>
+                </xpath>
             </field>
         </record>
     </data>
